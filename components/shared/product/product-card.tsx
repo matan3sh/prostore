@@ -1,10 +1,11 @@
 import ProductPrice from '@/components/shared/product/product-price'
 import { Card, CardContent, CardHeader } from '@/components/ui/card'
+import { Product } from '@/types'
 import Image from 'next/image'
 import Link from 'next/link'
 
 interface Props {
-  product: any
+  product: Product
 }
 
 const ProductCard = ({ product }: Props) => {
