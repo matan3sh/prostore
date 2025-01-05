@@ -12,7 +12,7 @@ const ProductCard = ({ product }: Props) => {
   return (
     <Card className="w-full max-w-sm">
       <CardHeader className="p-0 items-center">
-        <Link href={`/products/${product.slug}`}>
+        <Link href={`/product/${product.slug}`}>
           <Image
             src={product.images[0]}
             alt={product.name}
@@ -24,7 +24,7 @@ const ProductCard = ({ product }: Props) => {
       </CardHeader>
       <CardContent className="p-4 grid gap-4">
         <div className="text-xs">{product.brand}</div>
-        <Link href={`/products/${product.slug}`}>
+        <Link href={`/product/${product.slug}`}>
           <h2 className="text-sm font-medium">{product.name}</h2>
         </Link>
 
