@@ -109,7 +109,7 @@ export const config = {
           },
         })
 
-        // Set newly generated session cart id cookie
+        // Set newly generated session cartId cookie
         response.cookies.set('sessionCartId', sessionCartId)
 
         return response
