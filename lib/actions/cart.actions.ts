@@ -35,6 +35,7 @@ export const addItemToCart = async (data: CartItem) => {
       UserId: userId,
       'Item Requested': item,
       'Product Found': product,
+      Cart: cart,
     })
 
     return {
