@@ -5,6 +5,7 @@ import { ToastAction } from '@/components/ui/toast'
 import { useToast } from '@/hooks/use-toast'
 import { addItemToCart } from '@/lib/actions/cart.actions'
 import { CartItem } from '@/types'
+import { PlusIcon } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 
 interface Props {
@@ -42,7 +43,7 @@ const AddToCart = ({ item }: Props) => {
 
   return (
     <Button className="w-full" type="button" onClick={handleAddToCart}>
-      Add To Cart
+      <PlusIcon /> Add To Cart
     </Button>
   )
 }
