@@ -5,6 +5,7 @@ import { prisma } from '@/db/prisma'
 import { convertToPlainObject, formatError, round2 } from '@/lib/utils'
 import { cartItemSchema, insertCartSchema } from '@/lib/validators'
 import { CartItem } from '@/types'
+import { Prisma } from '@prisma/client'
 import { revalidatePath } from 'next/cache'
 import { cookies } from 'next/headers'
 
@@ -69,9 +70,52 @@ export const addItemToCart = async (data: CartItem) => {
 
       return {
         success: true,
-        message: 'Item added to cart',
+        message: `${product.name} added to cart`,
       }
     } else {
+      // Check if item already in cart
+      const existingItem = (cart.items as CartItem[]).find(
+        (x) => x.productId === item.productId
+      )
+
+      if (existingItem) {
+        // Check stock
+        if (product.stock < existingItem.quantity + 1) {
+          throw new Error('Not enough stock')
+        }
+
+        // Increase the quantity
+        ;(cart.items as CartItem[]).find(
+          (x) => x.productId === item.productId
+        )!.quantity = existingItem.quantity + 1
+      } else {
+        // If item does not exist in cart
+        // Check stock
+        if (product.stock < 1) {
+          throw new Error('Not enough stock')
+        }
+
+        // Add item to cart.items
+        cart.items.push(item)
+      }
+
+      // Save to database
+      await prisma.cart.update({
+        where: { id: cart.id },
+        data: {
+          items: cart.items as Prisma.CartUpdateitemsInput[],
+          ...calcPrice(cart.items as CartItem[]),
+        },
+      })
+
+      revalidatePath(`/product/${product.slug}`)
+
+      return {
+        success: true,
+        message: `${product.name} ${
+          existingItem ? 'updated in' : 'added to'
+        } cart`,
+      }
     }
   } catch (error) {
     return {
