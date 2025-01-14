@@ -5,8 +5,9 @@ import { ToastAction } from '@/components/ui/toast'
 import { useToast } from '@/hooks/use-toast'
 import { addItemToCart, removeItemFromCart } from '@/lib/actions/cart.actions'
 import { Cart, CartItem } from '@/types'
-import { MinusIcon, PlusIcon } from 'lucide-react'
+import { Loader, Minus, Plus } from 'lucide-react'
 import { useRouter } from 'next/navigation'
+import { useTransition } from 'react'
 
 interface Props {
   item: CartItem
@@ -17,37 +18,43 @@ const AddToCart = ({ item, cart }: Props) => {
   const router = useRouter()
   const { toast } = useToast()
 
-  const handleAddToCart = async () => {
-    const res = await addItemToCart(item)
+  const [isPending, startTransition] = useTransition()
 
-    if (!res.success) {
+  const handleAddToCart = () => {
+    startTransition(async () => {
+      const res = await addItemToCart(item)
+
+      if (!res.success) {
+        toast({
+          variant: 'destructive',
+          description: res.message,
+        })
+        return
+      }
+
       toast({
-        variant: 'destructive',
         description: res.message,
+        action: (
+          <ToastAction
+            className="bg-primary text-white hover:bg-gray-800"
+            altText="Go to cart"
+            onClick={() => router.push('/cart')}
+          >
+            Go to cart
+          </ToastAction>
+        ),
       })
-      return
-    }
-
-    toast({
-      description: res.message,
-      action: (
-        <ToastAction
-          className="bg-primary text-white hover:bg-gray-800"
-          altText="Go to cart"
-          onClick={() => router.push('/cart')}
-        >
-          Go to cart
-        </ToastAction>
-      ),
     })
   }
 
   const handleRemoveFromCart = async () => {
-    const res = await removeItemFromCart(item.productId)
+    startTransition(async () => {
+      const res = await removeItemFromCart(item.productId)
 
-    toast({
-      variant: res.success ? 'default' : 'destructive',
-      description: res.message,
+      toast({
+        variant: res.success ? 'default' : 'destructive',
+        description: res.message,
+      })
     })
   }
 
@@ -58,16 +65,29 @@ const AddToCart = ({ item, cart }: Props) => {
   return existItem ? (
     <div>
       <Button type="button" variant={'outline'} onClick={handleRemoveFromCart}>
-        <MinusIcon className="h-4 w-4" />
+        {isPending ? (
+          <Loader className="w-4 h-4 animate-spin" />
+        ) : (
+          <Minus className="h-4 w-4" />
+        )}
       </Button>
       <span className="px-2">{existItem.quantity}</span>
       <Button type="button" variant={'outline'} onClick={handleAddToCart}>
-        <PlusIcon className="h-4 w-4" />
+        {isPending ? (
+          <Loader className="w-4 h-4 animate-spin" />
+        ) : (
+          <Plus className="h-4 w-4" />
+        )}
       </Button>
     </div>
   ) : (
     <Button className="w-full" type="button" onClick={handleAddToCart}>
-      <PlusIcon /> Add To Cart
+      {isPending ? (
+        <Loader className="w-4 h-4 animate-spin" />
+      ) : (
+        <Plus className="h-4 w-4" />
+      )}{' '}
+      Add To Cart
     </Button>
   )
 }
