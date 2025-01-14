@@ -2,10 +2,28 @@
 
 import { auth } from '@/auth'
 import { prisma } from '@/db/prisma'
-import { convertToPlainObject, formatError } from '@/lib/utils'
-import { cartItemSchema } from '@/lib/validators'
+import { convertToPlainObject, formatError, round2 } from '@/lib/utils'
+import { cartItemSchema, insertCartSchema } from '@/lib/validators'
 import { CartItem } from '@/types'
+import { revalidatePath } from 'next/cache'
 import { cookies } from 'next/headers'
+
+// Calculate cart prices
+const calcPrice = (items: CartItem[]) => {
+  const itemsPrice = round2(
+      items.reduce((acc, item) => acc + Number(item.price) * item.quantity, 0)
+    ),
+    shippingPrice = round2(itemsPrice > 100 ? 0 : 10),
+    taxPrice = round2(itemsPrice * 0.15),
+    totalPrice = round2(itemsPrice + shippingPrice + taxPrice)
+
+  return {
+    itemsPrice: itemsPrice.toFixed(2),
+    shippingPrice: shippingPrice.toFixed(2),
+    taxPrice: taxPrice.toFixed(2),
+    totalPrice: totalPrice.toFixed(2),
+  }
+}
 
 export const addItemToCart = async (data: CartItem) => {
   try {
@@ -30,17 +48,30 @@ export const addItemToCart = async (data: CartItem) => {
       where: { id: item.productId },
     })
 
-    console.log({
-      SessionCartId: sessionCartId,
-      UserId: userId,
-      'Item Requested': item,
-      'Product Found': product,
-      Cart: cart,
-    })
+    if (!product) {
+      throw new Error('Product not found')
+    }
 
-    return {
-      success: true,
-      message: 'Item added to cart',
+    if (!cart) {
+      // Create cart if not found
+      const newCart = insertCartSchema.parse({
+        userId,
+        items: [item],
+        sessionCartId,
+        ...calcPrice([item]),
+      })
+
+      // Add to database
+      await prisma.cart.create({ data: newCart })
+
+      // Revalidate product page
+      revalidatePath(`/product/${product.slug}`)
+
+      return {
+        success: true,
+        message: 'Item added to cart',
+      }
+    } else {
     }
   } catch (error) {
     return {
