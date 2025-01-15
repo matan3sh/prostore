@@ -1,6 +1,7 @@
 'use client'
 
 import { Button } from '@/components/ui/button'
+import { Card, CardContent } from '@/components/ui/card'
 import {
   Table,
   TableBody,
@@ -11,10 +12,12 @@ import {
 } from '@/components/ui/table'
 import { useToast } from '@/hooks/use-toast'
 import { addItemToCart, removeItemFromCart } from '@/lib/actions/cart.actions'
+import { formatCurrency } from '@/lib/utils'
 import { Cart, CartItem } from '@/types'
-import { Loader, Minus, Plus } from 'lucide-react'
+import { ArrowRight, Loader, Minus, Plus } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import { useTransition } from 'react'
 
 interface Props {
@@ -22,7 +25,7 @@ interface Props {
 }
 
 const CartTable = ({ cart }: Props) => {
-  // const router = useRouter()
+  const router = useRouter()
   const { toast } = useToast()
   const [isPending, startTransition] = useTransition()
 
@@ -50,6 +53,10 @@ const CartTable = ({ cart }: Props) => {
         })
       }
     })
+  }
+
+  const handleCheckOut = () => {
+    startTransition(() => router.push('/shipping-address'))
   }
 
   return (
@@ -120,6 +127,30 @@ const CartTable = ({ cart }: Props) => {
               </TableBody>
             </Table>
           </div>
+
+          <Card>
+            <CardContent className="p-4 gap-4">
+              <div className="pb-3 text-xl">
+                Subtotal (
+                {cart.items.reduce((acc, item) => acc + item.quantity, 0)}):
+                <span className="font-bold">
+                  {formatCurrency(cart.itemsPrice)}
+                </span>
+              </div>
+              <Button
+                className="w-full"
+                disabled={isPending}
+                onClick={handleCheckOut}
+              >
+                {isPending ? (
+                  <Loader className="w-4 h-4 animate-spin" />
+                ) : (
+                  <ArrowRight className="w-4 h-4" />
+                )}{' '}
+                Proceed to Checkout
+              </Button>
+            </CardContent>
+          </Card>
         </div>
       )}
     </>
