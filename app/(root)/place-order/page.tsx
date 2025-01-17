@@ -1,12 +1,12 @@
 import PlaceOrderForm from '@/app/(root)/place-order/place-order-form'
 import PlaceOrderItemsTable from '@/app/(root)/place-order/place-order-items-table'
+import PlaceOrderSummary from '@/app/(root)/place-order/place-order-summary'
 import { auth } from '@/auth'
 import CheckoutSteps from '@/components/shared/checkout-steps'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { getMyCart } from '@/lib/actions/cart.actions'
 import { getUserById } from '@/lib/actions/user.actions'
-import { formatCurrency } from '@/lib/utils'
 import { ShippingAddress } from '@/types'
 import { Metadata } from 'next'
 import Link from 'next/link'
@@ -37,6 +37,7 @@ const PlaceOrderPage = async () => {
       <h1 className="py-4 text-2xl">Place Order</h1>
       <div className="grid md:grid-cols-3 md:gap-5">
         <div className="md:col-span-2 overflow-x-auto space-y-4">
+          {/* SHIPPING ADDRESS */}
           <Card>
             <CardContent className="p-4 gap-4">
               <h2 className="text-xl pb-4">Shipping Address</h2>
@@ -52,7 +53,7 @@ const PlaceOrderPage = async () => {
               </div>
             </CardContent>
           </Card>
-
+          {/* PAYMENT METHOD */}
           <Card>
             <CardContent className="p-4 gap-4">
               <h2 className="text-xl pb-4">Payment Method</h2>
@@ -64,7 +65,7 @@ const PlaceOrderPage = async () => {
               </div>
             </CardContent>
           </Card>
-
+          {/* ORDER ITEMS */}
           <Card>
             <CardContent className="p-4 gap-4">
               <h2 className="text-xl pb-4">Order Items</h2>
@@ -72,25 +73,18 @@ const PlaceOrderPage = async () => {
             </CardContent>
           </Card>
         </div>
+        {/* ORDER SUMMARY */}
         <div>
           <Card>
             <CardContent className="p-4 gap-4 space-y-4">
-              <div className="flex justify-between">
-                <div>Items</div>
-                <div>{formatCurrency(cart.itemsPrice)}</div>
-              </div>
-              <div className="flex justify-between">
-                <div>Tax</div>
-                <div>{formatCurrency(cart.taxPrice)}</div>
-              </div>
-              <div className="flex justify-between">
-                <div>Shipping</div>
-                <div>{formatCurrency(cart.shippingPrice)}</div>
-              </div>
-              <div className="flex justify-between">
-                <div>Total</div>
-                <div>{formatCurrency(cart.totalPrice)}</div>
-              </div>
+              <PlaceOrderSummary
+                cartPrices={{
+                  taxPrice: cart.taxPrice,
+                  itemsPrice: cart.itemsPrice,
+                  shippingPrice: cart.shippingPrice,
+                  totalPrice: cart.totalPrice,
+                }}
+              />
               <PlaceOrderForm />
             </CardContent>
           </Card>
