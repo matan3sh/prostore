@@ -107,7 +107,7 @@ const CartTable = ({ cart }: Props) => {
                           <Minus className="w-4 h-4" />
                         )}
                       </Button>
-                      <span>{item.quantity}</span>
+                      <span>{item.qty}</span>
                       <Button
                         disabled={isPending}
                         variant={'outline'}
@@ -131,8 +131,8 @@ const CartTable = ({ cart }: Props) => {
           <Card>
             <CardContent className="p-4 gap-4">
               <div className="pb-3 text-xl">
-                Subtotal (
-                {cart.items.reduce((acc, item) => acc + item.quantity, 0)}):
+                Subtotal ({cart.items.reduce((acc, item) => acc + item.qty, 0)}
+                ):
                 <span className="font-bold">
                   {formatCurrency(cart.itemsPrice)}
                 </span>

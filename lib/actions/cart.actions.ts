@@ -12,7 +12,7 @@ import { cookies } from 'next/headers'
 // Calculate cart prices
 const calcPrice = (items: CartItem[]) => {
   const itemsPrice = round2(
-      items.reduce((acc, item) => acc + Number(item.price) * item.quantity, 0)
+      items.reduce((acc, item) => acc + Number(item.price) * item.qty, 0)
     ),
     shippingPrice = round2(itemsPrice > 100 ? 0 : 10),
     taxPrice = round2(itemsPrice * 0.15),
@@ -80,14 +80,14 @@ export const addItemToCart = async (data: CartItem) => {
 
       if (existingItem) {
         // Check stock
-        if (product.stock < existingItem.quantity + 1) {
+        if (product.stock < existingItem.qty + 1) {
           throw new Error('Not enough stock')
         }
 
         // Increase the quantity
         ;(cart.items as CartItem[]).find(
           (x) => x.productId === item.productId
-        )!.quantity = existingItem.quantity + 1
+        )!.qty = existingItem.qty + 1
       } else {
         // If item does not exist in cart
         // Check stock
@@ -183,16 +183,15 @@ export async function removeItemFromCart(productId: string) {
     }
 
     // Check if item only one in quantity
-    if (exist.quantity === 1) {
+    if (exist.qty === 1) {
       // Remove from cart
       cart.items = (cart.items as CartItem[]).filter(
         (x) => x.productId !== productId
       )
     } else {
       // Decrease quantity
-      ;(cart.items as CartItem[]).find(
-        (x) => x.productId === productId
-      )!.quantity = exist.quantity - 1
+      ;(cart.items as CartItem[]).find((x) => x.productId === productId)!.qty =
+        exist.qty - 1
     }
 
     // Update cart in database

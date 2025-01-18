@@ -42,7 +42,7 @@ const PlaceOrderItemsTable = ({ cart }: Props) => {
               </Link>
             </TableCell>
             <TableCell>
-              <span className="px-2">{item.quantity}</span>
+              <span className="px-2">{item.qty}</span>
             </TableCell>
             <TableCell>${item.price}</TableCell>
           </TableRow>

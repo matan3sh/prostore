@@ -9,26 +9,22 @@ import { insertOrderSchema } from '@/lib/validators'
 import { CartItem } from '@/types'
 import { isRedirectError } from 'next/dist/client/components/redirect-error'
 
-// Create order and create order items
+// Create order and create the order items
 export async function createOrder() {
   try {
     const session = await auth()
-    if (!session) {
-      throw new Error(' User is not authenticated')
-    }
+    if (!session) throw new Error('User is not authenticated')
 
     const cart = await getMyCart()
     const userId = session?.user?.id
-    if (!userId) {
-      throw new Error('User not found')
-    }
+    if (!userId) throw new Error('User not found')
 
     const user = await getUserById(userId)
 
     if (!cart || cart.items.length === 0) {
       return {
         success: false,
-        error: 'Your cart is empty',
+        message: 'Your cart is empty',
         redirectTo: '/cart',
       }
     }
@@ -36,7 +32,7 @@ export async function createOrder() {
     if (!user.address) {
       return {
         success: false,
-        error: 'No shipping address found',
+        message: 'No shipping address',
         redirectTo: '/shipping-address',
       }
     }
@@ -44,7 +40,7 @@ export async function createOrder() {
     if (!user.paymentMethod) {
       return {
         success: false,
-        error: 'No payment method found',
+        message: 'No payment method',
         redirectTo: '/payment-method',
       }
     }
@@ -54,9 +50,9 @@ export async function createOrder() {
       userId: user.id,
       shippingAddress: user.address,
       paymentMethod: user.paymentMethod,
-      itemsPrise: cart.itemsPrice,
-      taxPrice: cart.taxPrice,
+      itemsPrice: cart.itemsPrice,
       shippingPrice: cart.shippingPrice,
+      taxPrice: cart.taxPrice,
       totalPrice: cart.totalPrice,
     })
 
@@ -71,7 +67,6 @@ export async function createOrder() {
             ...item,
             price: item.price,
             orderId: insertedOrder.id,
-            qty: item.quantity,
           },
         })
       }
@@ -98,9 +93,7 @@ export async function createOrder() {
       redirectTo: `/order/${insertedOrderId}`,
     }
   } catch (error) {
-    if (isRedirectError(error)) {
-      throw error
-    }
-    return { success: false, error: formatError(error) }
+    if (isRedirectError(error)) throw error
+    return { success: false, message: formatError(error) }
   }
 }
