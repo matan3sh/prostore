@@ -6,15 +6,15 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
-import { Cart } from '@/types'
+import { Cart, OrderItem } from '@/types'
 import Image from 'next/image'
 import Link from 'next/link'
 
 interface Props {
-  cart: Cart
+  items: Cart['items'] | OrderItem[]
 }
 
-const PlaceOrderItemsTable = ({ cart }: Props) => {
+const ItemsTable = ({ items }: Props) => {
   return (
     <Table>
       <TableHeader>
@@ -25,7 +25,7 @@ const PlaceOrderItemsTable = ({ cart }: Props) => {
         </TableRow>
       </TableHeader>
       <TableBody>
-        {cart.items.map((item) => (
+        {items.map((item) => (
           <TableRow key={item.slug}>
             <TableCell>
               <Link
@@ -52,4 +52,4 @@ const PlaceOrderItemsTable = ({ cart }: Props) => {
   )
 }
 
-export default PlaceOrderItemsTable
+export default ItemsTable

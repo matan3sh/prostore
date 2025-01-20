@@ -13,7 +13,7 @@ interface Props {
   cartPrices: Record<CartKey, string>
 }
 
-const PlaceOrderSummary = ({ cartPrices }: Props) => {
+const PriceSummary = ({ cartPrices }: Props) => {
   return (
     <>
       {PLACE_ORDER_CATEGORIES.map(({ label, key }) => (
@@ -26,4 +26,4 @@ const PlaceOrderSummary = ({ cartPrices }: Props) => {
   )
 }
 
-export default PlaceOrderSummary
+export default PriceSummary

@@ -1,0 +1,127 @@
+'use client'
+
+import ItemsTable from '@/components/shared/items-table'
+import PriceSummary from '@/components/shared/price-summary'
+import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent } from '@/components/ui/card'
+import { formatDateTime, formatId } from '@/lib/utils'
+import { Order } from '@/types'
+import { useTransition } from 'react'
+
+interface Props {
+  order: Omit<Order, 'paymentResult'>
+  isAdmin: boolean
+}
+
+const OrderDetailsTable = ({ order, isAdmin }: Props) => {
+  const {
+    id,
+    shippingAddress,
+    orderitems,
+    itemsPrice,
+    shippingPrice,
+    taxPrice,
+    totalPrice,
+    paymentMethod,
+    isDelivered,
+    isPaid,
+    paidAt,
+    deliveredAt,
+  } = order
+
+  // Button to mark order as paid
+  const MarkAsPaidButton = () => {
+    const [isPending] = useTransition()
+
+    return (
+      <Button type="button" disabled={isPending} onClick={() => {}}>
+        {isPending ? 'processing...' : 'Mark As Paid'}
+      </Button>
+    )
+  }
+
+  // Button to mark order as delivered
+  const MarkAsDeliveredButton = () => {
+    const [isPending] = useTransition()
+
+    return (
+      <Button type="button" disabled={isPending} onClick={() => {}}>
+        {isPending ? 'processing...' : 'Mark As Delivered'}
+      </Button>
+    )
+  }
+
+  return (
+    <>
+      <h1 className="py-4 text-2xl">Order {formatId(id)}</h1>
+      <div className="grid md:grid-cols-3 md:gap-5">
+        <div className="col-span-2 space-4-y overlow-x-auto">
+          <Card>
+            <CardContent className="p-4 gap-4">
+              <h2 className="text-xl pb-4">Payment Method</h2>
+              <p className="mb-2">{paymentMethod}</p>
+              {isPaid ? (
+                <Badge variant="secondary">
+                  Paid at {formatDateTime(paidAt!).dateTime}
+                </Badge>
+              ) : (
+                <Badge variant="destructive">Not paid</Badge>
+              )}
+            </CardContent>
+          </Card>
+          <Card className="my-2">
+            <CardContent className="p-4 gap-4">
+              <h2 className="text-xl pb-4">Shipping Address</h2>
+              <p>{shippingAddress.fullName}</p>
+              <p className="mb-2">
+                {shippingAddress.streetAddress}, {shippingAddress.city}
+                {shippingAddress.postalCode}, {shippingAddress.country}
+              </p>
+              {isDelivered ? (
+                <Badge variant="secondary">
+                  Delivered at {formatDateTime(deliveredAt!).dateTime}
+                </Badge>
+              ) : (
+                <Badge variant="destructive">Not Delivered</Badge>
+              )}
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent className="p-4 gap-4">
+              <h2 className="text-xl pb-4">Order Items</h2>
+              <ItemsTable items={orderitems} />
+            </CardContent>
+          </Card>
+        </div>
+        <div>
+          <Card>
+            <CardContent className="p-4 gap-4 space-y-4">
+              <PriceSummary
+                cartPrices={{
+                  taxPrice,
+                  itemsPrice,
+                  shippingPrice,
+                  totalPrice,
+                }}
+              />
+
+              {/* PayPal Payment */}
+
+              {/* Stripe Payment */}
+
+              {/* Cash On Delivery */}
+              {isAdmin && !isPaid && paymentMethod === 'CashOnDelivery' && (
+                <MarkAsPaidButton />
+              )}
+
+              {isAdmin && isPaid && !isDelivered && <MarkAsDeliveredButton />}
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    </>
+  )
+}
+
+export default OrderDetailsTable

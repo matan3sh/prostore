@@ -1,8 +1,8 @@
 import PlaceOrderForm from '@/app/(root)/place-order/place-order-form'
-import PlaceOrderItemsTable from '@/app/(root)/place-order/place-order-items-table'
-import PlaceOrderSummary from '@/app/(root)/place-order/place-order-summary'
 import { auth } from '@/auth'
 import CheckoutSteps from '@/components/shared/checkout-steps'
+import ItemsTable from '@/components/shared/items-table'
+import PriceSummary from '@/components/shared/price-summary'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { getMyCart } from '@/lib/actions/cart.actions'
@@ -69,7 +69,7 @@ const PlaceOrderPage = async () => {
           <Card>
             <CardContent className="p-4 gap-4">
               <h2 className="text-xl pb-4">Order Items</h2>
-              <PlaceOrderItemsTable cart={cart} />
+              <ItemsTable items={cart.items} />
             </CardContent>
           </Card>
         </div>
@@ -77,7 +77,7 @@ const PlaceOrderPage = async () => {
         <div>
           <Card>
             <CardContent className="p-4 gap-4 space-y-4">
-              <PlaceOrderSummary
+              <PriceSummary
                 cartPrices={{
                   taxPrice: cart.taxPrice,
                   itemsPrice: cart.itemsPrice,
