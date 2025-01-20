@@ -18,7 +18,7 @@ const OrderDetailsPage = async (props: Props) => {
   const order = await getOrderById(id)
   if (!order) notFound()
 
-  return <>Order: {order.totalPrice}</>
+  return <>Order: {order.id}</>
 }
 
 export default OrderDetailsPage
