@@ -1,5 +1,5 @@
 import OrderDetailsTable from '@/app/(root)/order/[id]/order-details-table'
-import { getOrderById } from '@/lib/actions/order.actions'
+import { getOrderById } from '@/lib/actions/order/order.actions'
 import { ShippingAddress } from '@/types'
 import { Metadata } from 'next'
 import { notFound } from 'next/navigation'
