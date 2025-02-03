@@ -4,6 +4,7 @@ import { auth } from '@/auth'
 import { prisma } from '@/db/prisma'
 import { getMyCart } from '@/lib/actions/cart.actions'
 import { getUserById } from '@/lib/actions/user.actions'
+import { PAGE_SIZE } from '@/lib/constants'
 import { convertToPlainObject, formatError } from '@/lib/utils'
 import { insertOrderSchema } from '@/lib/validators'
 import { CartItem, PaymentResult } from '@/types'
@@ -171,4 +172,33 @@ export async function updateOrderToPaid({
   //     paymentResult: updatedOrder.paymentResult as PaymentResult,
   //   },
   // });
+}
+
+// Get user's orders
+export async function getMyOrders({
+  limit = PAGE_SIZE,
+  page,
+}: {
+  limit?: number
+  page: number
+}) {
+  const session = await auth()
+  if (!session) throw new Error('User is not authenticated')
+
+  const userId = session?.user?.id
+  if (!userId) throw new Error('User not found')
+
+  const data = await prisma.order.findMany({
+    where: { userId },
+    orderBy: { createdAt: 'desc' },
+    take: limit,
+    skip: (page - 1) * limit,
+  })
+
+  const dataCount = await prisma.order.count({ where: { userId } })
+
+  return {
+    data,
+    totalPages: Math.ceil(dataCount / limit),
+  }
 }
