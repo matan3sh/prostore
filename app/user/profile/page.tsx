@@ -1,3 +1,4 @@
+import ProfileForm from '@/app/user/profile/profile-form'
 import { auth } from '@/auth'
 import { Metadata } from 'next'
 import { SessionProvider } from 'next-auth/react'
@@ -13,7 +14,7 @@ const Profile = async () => {
     <SessionProvider session={session}>
       <div className="max-w-md mx-auto space-y-4">
         <h2 className="h2-bold">Profile</h2>
-        Profile Form
+        <ProfileForm />
       </div>
     </SessionProvider>
   )
