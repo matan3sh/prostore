@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-
 import { clsx, type ClassValue } from 'clsx'
 import qs from 'query-string'
 import { twMerge } from 'tailwind-merge'
@@ -8,7 +6,7 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
 
-// Convert prisma object to plain object
+// Convert prisma object into a regular JS object
 export function convertToPlainObject<T>(value: T): T {
   return JSON.parse(JSON.stringify(value))
 }
@@ -20,7 +18,8 @@ export function formatNumberWithDecimal(num: number): string {
 }
 
 // Format errors
-export async function formatError(error: any) {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export function formatError(error: any) {
   if (error.name === 'ZodError') {
     // Handle Zod error
     const fieldErrors = Object.keys(error.errors).map(
@@ -32,7 +31,7 @@ export async function formatError(error: any) {
     error.name === 'PrismaClientKnownRequestError' &&
     error.code === 'P2002'
   ) {
-    // Handle peisma error
+    // Handle Prisma error
     const field = error.meta?.target ? error.meta.target[0] : 'Field'
     return `${field.charAt(0).toUpperCase() + field.slice(1)} already exists`
   } else {
@@ -50,7 +49,7 @@ export function round2(value: number | string) {
   } else if (typeof value === 'string') {
     return Math.round((Number(value) + Number.EPSILON) * 100) / 100
   } else {
-    throw new Error('Value must be a number or string')
+    throw new Error('Value is not a number or string')
   }
 }
 
@@ -69,6 +68,13 @@ export function formatCurrency(amount: number | string | null) {
   } else {
     return 'NaN'
   }
+}
+
+// Format Number
+const NUMBER_FORMATTER = new Intl.NumberFormat('en-US')
+
+export function formatNumber(number: number) {
+  return NUMBER_FORMATTER.format(number)
 }
 
 // Shorten UUID
