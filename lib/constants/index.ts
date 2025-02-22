@@ -22,11 +22,11 @@ export const signUpDefaultValues = {
 }
 
 export const shippingAddressDefaultValues = {
-  fullName: '',
-  streetAddress: '',
-  city: '',
-  postalCode: '',
-  country: '',
+  fullName: 'John Smith',
+  streetAddress: '123 Main Street',
+  city: 'New York',
+  postalCode: '10001',
+  country: 'United States',
 }
 
 export const PAYMENT_METHODS = process.env.PAYMENT_METHODS

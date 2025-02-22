@@ -1,4 +1,4 @@
-import MainNav from '@/app/user/main-nav'
+import MainNav from '@/app/admin/main-nav'
 import AdminSearch from '@/components/admin/admin-search'
 import Menu from '@/components/shared/header/menu'
 import { APP_NAME } from '@/lib/constants'
