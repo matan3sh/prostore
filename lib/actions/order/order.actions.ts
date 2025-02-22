@@ -9,6 +9,7 @@ import { convertToPlainObject, formatError } from '@/lib/utils'
 import { insertOrderSchema } from '@/lib/validators'
 import { CartItem, PaymentResult, SalesDataType } from '@/types'
 import { Prisma } from '@prisma/client'
+import { revalidatePath } from 'next/cache'
 import { isRedirectError } from 'next/dist/client/components/redirect-error'
 
 // Create order and create the order items
@@ -204,6 +205,7 @@ export async function getMyOrders({
   }
 }
 
+// Get sales data and order summary
 export async function getOrderSummary() {
   // Get counts for each resource
   const ordersCount = await prisma.order.count()
@@ -241,5 +243,61 @@ export async function getOrderSummary() {
     totalSales,
     latestSales,
     salesData,
+  }
+}
+
+// Get all orders
+export async function getAllOrders({
+  limit = PAGE_SIZE,
+  page,
+  query,
+}: {
+  limit?: number
+  page: number
+  query: string
+}) {
+  const queryFilter: Prisma.OrderWhereInput =
+    query && query !== 'all'
+      ? {
+          user: {
+            name: {
+              contains: query,
+              mode: 'insensitive',
+            } as Prisma.StringFilter,
+          },
+        }
+      : {}
+
+  const data = await prisma.order.findMany({
+    where: {
+      ...queryFilter,
+    },
+    orderBy: { createdAt: 'desc' },
+    take: limit,
+    skip: (page - 1) * limit,
+    include: { user: { select: { name: true } } },
+  })
+
+  const dataCount = await prisma.order.count()
+
+  return {
+    data,
+    totalPages: Math.ceil(dataCount / limit),
+  }
+}
+
+// Delete an order
+export async function deleteOrder(id: string) {
+  try {
+    await prisma.order.delete({ where: { id } })
+
+    revalidatePath('/admin/orders')
+
+    return {
+      success: true,
+      message: 'Order deleted successfully',
+    }
+  } catch (error) {
+    return { success: false, message: formatError(error) }
   }
 }
