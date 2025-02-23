@@ -7,6 +7,10 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { useToast } from '@/hooks/use-toast'
 import {
+  deliverOrder,
+  updateCODOrderToPaid,
+} from '@/lib/actions/order/order.actions'
+import {
   approvePayPalOrder,
   createPayPalOrder,
 } from '@/lib/actions/order/paypal.order.actions'
@@ -17,7 +21,7 @@ import {
   PayPalScriptProvider,
   usePayPalScriptReducer,
 } from '@paypal/react-paypal-js'
-import { useTransition } from 'react'
+import { startTransition, useTransition } from 'react'
 
 interface Props {
   order: Omit<Order, 'paymentResult'>
@@ -82,7 +86,20 @@ const OrderDetailsTable = ({ order, isAdmin, paypalClientId }: Props) => {
     const [isPending] = useTransition()
 
     return (
-      <Button type="button" disabled={isPending} onClick={() => {}}>
+      <Button
+        type="button"
+        disabled={isPending}
+        onClick={() =>
+          startTransition(async () => {
+            const res = await updateCODOrderToPaid(id)
+
+            toast({
+              variant: res.success ? 'default' : 'destructive',
+              description: res.message,
+            })
+          })
+        }
+      >
         {isPending ? 'processing...' : 'Mark As Paid'}
       </Button>
     )
@@ -93,7 +110,18 @@ const OrderDetailsTable = ({ order, isAdmin, paypalClientId }: Props) => {
     const [isPending] = useTransition()
 
     return (
-      <Button type="button" disabled={isPending} onClick={() => {}}>
+      <Button
+        type="button"
+        disabled={isPending}
+        onClick={async () => {
+          const res = await deliverOrder(id)
+
+          toast({
+            variant: res.success ? 'default' : 'destructive',
+            description: res.message,
+          })
+        }}
+      >
         {isPending ? 'processing...' : 'Mark As Delivered'}
       </Button>
     )

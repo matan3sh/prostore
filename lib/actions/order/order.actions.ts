@@ -327,7 +327,7 @@ export async function deliverOrder(orderId: string) {
 
     if (!order) throw new Error('Order not found')
 
-    if (order.isPaid) throw new Error('Order is not paid')
+    if (!order.isPaid) throw new Error('Order is not paid')
     if (order.isDelivered) throw new Error('Order is already delivered')
 
     await prisma.order.update({
