@@ -2,6 +2,7 @@
 
 import { auth, signIn, signOut } from '@/auth'
 import { prisma } from '@/db/prisma'
+import { PAGE_SIZE } from '@/lib/constants'
 import { hash } from '@/lib/encrypt'
 import { formatError } from '@/lib/utils'
 import {
@@ -11,6 +12,7 @@ import {
   signUpFormSchema,
 } from '@/lib/validators'
 import { PaymentMethod, ShippingAddress } from '@/types'
+import { Prisma } from '@prisma/client'
 import { isRedirectError } from 'next/dist/client/components/redirect-error'
 
 // Sign in the user with credentials
@@ -164,5 +166,42 @@ export async function updateProfile(user: { name: string; email: string }) {
     }
   } catch (error) {
     return { success: false, message: formatError(error) }
+  }
+}
+
+// Get all the users
+export async function getAllUsers({
+  limit = PAGE_SIZE,
+  page,
+  query,
+}: {
+  limit?: number
+  page: number
+  query: string
+}) {
+  const queryFilter: Prisma.UserWhereInput =
+    query && query !== 'all'
+      ? {
+          name: {
+            contains: query,
+            mode: 'insensitive',
+          } as Prisma.StringFilter,
+        }
+      : {}
+
+  const data = await prisma.user.findMany({
+    where: {
+      ...queryFilter,
+    },
+    orderBy: { createdAt: 'desc' },
+    take: limit,
+    skip: (page - 1) * limit,
+  })
+
+  const dataCount = await prisma.user.count()
+
+  return {
+    data,
+    totalPages: Math.ceil(dataCount / limit),
   }
 }
